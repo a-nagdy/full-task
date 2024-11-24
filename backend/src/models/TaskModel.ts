@@ -1,11 +1,33 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Task } from '../types/types';
+import { PaginatedResponse, PaginationParams } from '../types/types';
 
 class TaskModel {
     private tasks: Task[] = [];
 
-    getAllTasks(): Task[] {
-        return this.tasks;
+    getTasks(params: PaginationParams): PaginatedResponse<Task> {
+        const { page = 1, limit = 5 } = params;
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+
+        // Get paginated data
+        const paginatedTasks = this.tasks
+            .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+            .slice(startIndex, endIndex);
+
+        return {
+            data: paginatedTasks,
+            meta: {
+                currentPage: page,
+                totalPages: Math.ceil(this.tasks.length / limit),
+                totalItems: this.tasks.length,
+                itemsPerPage: limit
+            }
+        };
+    }
+
+    countDocuments(): number {
+        return this.tasks.length;
     }
 
     createTask(title: string): Task {
@@ -15,7 +37,6 @@ class TaskModel {
             completed: false,
             createdAt: new Date()
         };
-        console.log('newTask', newTask);
         this.tasks.push(newTask);
         return newTask;
     }
@@ -23,7 +44,6 @@ class TaskModel {
     deleteTask(id: string): boolean {
         const initialLength = this.tasks.length;
         this.tasks = this.tasks.filter(task => task.id !== id);
-        console.log('this.tasks', this.tasks);
         return initialLength !== this.tasks.length;
     }
 
@@ -35,13 +55,29 @@ class TaskModel {
             ...this.tasks[taskIndex],
             ...updates
         };
-        console.log('this.tasks', this.tasks);
         return this.tasks[taskIndex];
     }
 
     findTaskById(id: string): Task | null {
-        console.log('id', id);
         return this.tasks.find(task => task.id === id) || null;
+    }
+
+    // Add search and filter methods
+    searchTasks(searchTerm: string): Task[] {
+        return this.tasks.filter(task => 
+            task.title.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
+
+    filterTasks(status: 'all' | 'completed' | 'pending'): Task[] {
+        switch (status) {
+            case 'completed':
+                return this.tasks.filter(task => task.completed);
+            case 'pending':
+                return this.tasks.filter(task => !task.completed);
+            default:
+                return this.tasks;
+        }
     }
 }
 

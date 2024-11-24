@@ -1,13 +1,11 @@
-import { Task } from "@/app/types/types";
+import { EditTaskFormProps } from "@/app/types/types";
 import { useState } from "react";
 
-interface EditTaskFormProps {
-  task: Task;
-  onSubmit: (task: Task) => Promise<void>;
-  onCancel: () => void;
-}
-
-export const EditTaskForm = ({ task, onSubmit, onCancel }: EditTaskFormProps) => {
+export const EditTaskForm = ({
+  task,
+  onSubmit,
+  onCancel,
+}: EditTaskFormProps) => {
   const [editedTask, setEditedTask] = useState(task);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,7 +19,9 @@ export const EditTaskForm = ({ task, onSubmit, onCancel }: EditTaskFormProps) =>
         <input
           type="text"
           value={editedTask.title}
-          onChange={(e) => setEditedTask({ ...editedTask, title: e.target.value })}
+          onChange={(e) =>
+            setEditedTask({ ...editedTask, title: e.target.value })
+          }
           className="flex-1 p-2 border rounded"
           autoFocus
         />
@@ -29,7 +29,9 @@ export const EditTaskForm = ({ task, onSubmit, onCancel }: EditTaskFormProps) =>
           <input
             type="checkbox"
             checked={editedTask.completed}
-            onChange={(e) => setEditedTask({ ...editedTask, completed: e.target.checked })}
+            onChange={(e) =>
+              setEditedTask({ ...editedTask, completed: e.target.checked })
+            }
             className="h-5 w-5"
           />
           <span>Mark as completed</span>
@@ -52,4 +54,4 @@ export const EditTaskForm = ({ task, onSubmit, onCancel }: EditTaskFormProps) =>
       </div>
     </form>
   );
-}; 
+};
